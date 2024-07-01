@@ -16,7 +16,12 @@ def check_id3(file_path, no_artist_folder, destination_folder):
         logging.info(f"File {os.path.basename(file_path)} is not a compatible audio file.")
     return os.path.join(destination_folder, os.path.basename(file_path))
 
-def convert_flac_to_mp3(input_path, output_path):
+processed_files = set()  # Initialize the set at the global scope or within a class
+
+def convert_flac_to_mp3(input_path, output_path, processed_files):
+    if input_path in processed_files:
+        print(f"{Colors.WARNING}File {os.path.basename(input_path)} has already been processed. Skipping conversion.{Colors.ENDC}")
+        return
     print(f"{Colors.OKBLUE}Starting conversion of {os.path.basename(input_path)} to MP3...{Colors.ENDC}")
     if not os.path.exists(input_path):
         print(f"{Colors.WARNING}The file {input_path} does not exist. Skipping conversion.{Colors.ENDC}")
@@ -28,6 +33,7 @@ def convert_flac_to_mp3(input_path, output_path):
 
         ffmpeg.input(input_path).output(full_output_path).run(capture_stdout=True, capture_stderr=True)
         print(f"{Colors.OKGREEN}Successfully converted {os.path.basename(input_path)} to MP3.{Colors.ENDC}")
+        processed_files.add(input_path)  # Add the file to the set after successful conversion
     except ffmpeg.Error as e:
         print(f"{Colors.FAIL}Error converting {os.path.basename(input_path)}: {e}{Colors.ENDC}")
         logging.error(f"Error converting file: {e}")

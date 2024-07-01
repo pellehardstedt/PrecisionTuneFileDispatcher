@@ -14,6 +14,7 @@ class FileMoverHandler(FileSystemEventHandler):
         self.no_artist_folder = no_artist_folder
         self.flac_folder = flac_folder
         self.folder_activity = {}
+        self.processed_files = set()  # Initialize the set at the global scope or within a class
 
     def on_created(self, event):
         if event.is_directory:
@@ -28,7 +29,7 @@ class FileMoverHandler(FileSystemEventHandler):
             print(f"{Colors.FAIL}File {os.path.basename(file_path)} is not a compatible image or playlist file. Deleted.{Colors.ENDC}")
             return
         if file_extension == '.flac':
-            convert_flac_to_mp3(file_path, PATH_TO_WATCH)
+            convert_flac_to_mp3(file_path, PATH_TO_WATCH, self.processed_files)
             destination_path = os.path.join(self.flac_folder, os.path.basename(file_path))
             print(f"{Colors.OKGREEN}FLAC file {os.path.basename(file_path)} converted and moved to {self.flac_folder}.{Colors.ENDC}")
         else:
